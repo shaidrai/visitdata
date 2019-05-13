@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+	<title>Upload file to Azure</title>
+	<link rel="shortcut icon" href="logo.png" />
+	<link rel="shortcut icon" href="{{ url_for('static',filename='logo.png') }}" />
+	<link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}" />
+<style type="text/css">
+table {
+	border-collapse:collapse;
+	border-spacing:0;
+	-webkit-box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+	   -moz-box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+			    box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+	margin-bottom:40px;
+	margin-top:.5em;	
+	width:100%; 
+	max-width:100%;
+}
+table thead tr {border-bottom:3px solid #0085a6; color:#000;}
+table tfoot tr {border-top:3px solid #0085a6;}
+table thead th, table tfoot th {
+	background-color:#fff;
+	color:#000;
+	font-family: SANS-SERIF;
+	line-height:1.8;
+	padding: 15px 14px 13px 14px;
+	position:relative;
+	text-align:center;
+	text-transform:uppercase;	
+}
+table tbody tr {background-color:#fff;}
+table tbody tr:hover {background-color:#eee; color:#000;}
+table th, table td {
+	border:1px solid #bfbfbf;
+	padding:10px 14px;
+	position:relative;
+	vertical-align:middle;
+}
+caption {font-size:1.111em; font-weight:300; padding:10px 0;}
+
+@media (max-width:1024px) {
+	table {font-size: .944444em;}
+}
+@media (max-width:767px) {
+	table {font-size: 1em;}
+}
+
+ /* Responsive table full */
+@media (max-width: 767px) {
+	.table-responsive-full {box-shadow:none;}
+	.table-responsive-full thead tr, 
+	.table-responsive-full tfoot tr {display:none;}
+	.table-responsive-full tbody tr {
+		-webkit-box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+		   -moz-box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+				    box-shadow:0px 7px 6px -6px rgba(0,0,0,.28);
+		margin-bottom:20px;
+	}
+	.table-responsive-full tbody tr:last-child {margin-bottom:0;}
+	.table-responsive-full tr,
+	.table-responsive-full td {display:block;}
+	.table-responsive-full td {
+		background-color:#fff;
+		border-top:none;
+		position:relative;
+		padding-left:50%;
+	}
+	.table-responsive-full td:hover {background-color:#eee; color:#000;}
+	.table-responsive-full td:hover:before {color:hsl(0, 0%, 40%);}
+	
+	.table-responsive-full td:first-child {
+		border-top:1px solid #bfbfbf;
+		border-bottom: 3px solid #0085a6;
+		border-radius: 4px 4px 0 0;
+		color: #000;
+		font-size: 1.11111em;
+		font-weight: bold;
+		font-family: ariel;
+	}
+	.table-responsive-full td:before {
+		content: attr(data-label);
+		display: inline-block;
+		color: hsl(0, 0%, 60%);
+		font-size: 14px;
+		font-weight: normal;
+		margin-left: -100%;
+		text-transform: uppercase;
+		width: 100%;
+		white-space:nowrap;
+	}
+}
+@media (max-width: 360px) {
+	.table-responsive-full td {padding-left:14px;}
+	.table-responsive-full td:before {display:block; margin-bottom:.5em; margin-left:0;}
+}
+	/* Sort table */
+.sort-table-arrows {float:right; transition:.3s ease;}
+.sort-table-arrows button {margin:0; padding:4px 8px;}
+.sort-table th.title, .sort-table th.composer {width:20% !important;}
+.sort-table th.lyrics, .sort-table th.arranger, .sort-table th.set, .sort-table th.info {width:15% !important;}
+.sort-table .title {font-weight: bold;}
+.sort-table .title small {font-weight:normal;}
+
+@media (max-width:1024px) {
+	.sort-table th,.sort-table-arrows {text-align:center;}
+	.sort-table-arrows {float:none; padding:8px 0 0; position:relative; right:0px;}
+	.sort-table-arrows button {bottom:0;}
+}
+@media (max-width:767px) {
+	.sort-table thead tr {border-bottom:none; display:block; margin:10px 0; text-align:center;}
+	.sort-table thead tr th.arranger {display:none;}
+	.sort-table th {
+		border-bottom:1px solid #bfbfbf;
+		border-radius:4px;
+		display:inline-block;
+		font-size:.75em;
+		line-height:1;
+		margin:3px 0;
+		padding:10px;
+	}
+	.sort-table th.title, .sort-table th.composer, .sort-table th.lyrics, .sort-table th.set, .sort-table th.info {width: 100px !important;}
+	.sort-table td.title:before {display:none;}
+	.sort-table td.title {letter-spacing:.03em; padding-left:14px;}
+}
+
+
+
+
+.myButton {
+	-moz-box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	box-shadow:inset 0px 1px 0px 0px #54a3f7;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #007dc1), color-stop(1, #0061a7));
+	background:-moz-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-webkit-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-o-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:-ms-linear-gradient(top, #007dc1 5%, #0061a7 100%);
+	background:linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#007dc1', endColorstr='#0061a7',GradientType=0);
+	background-color:#007dc1;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #124d77;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #154682; 
+	
+}
+.myButton:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #0061a7), color-stop(1, #007dc1));
+	background:-moz-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-webkit-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-o-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:-ms-linear-gradient(top, #0061a7 5%, #007dc1 100%);
+	background:linear-gradient(to bottom, #0061a7 5%, #007dc1 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0061a7', endColorstr='#007dc1',GradientType=0);
+	background-color:#0061a7;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+	
+	
+}
+
+#kiriyat{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#sderot{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#ashkelon{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#beersheeva{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#netivot{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#ofakim{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+#malachi{
+height:70%;
+overflow: auto;
+display:none;
+}
+
+
+.buttons{
+height:10%;
+background-color:white;
+}
+
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+html {
+  height:100%;
+  background-image: linear-gradient(to right top, #8e44ad 0%, #3498db 100%);
+}
+
+nav {
+  max-width: 960px;
+  mask-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #ffffff 25%, #ffffff 75%, rgba(255, 255, 255, 0) 100%);
+  margin: 0 auto;
+  padding: 60px 0;
+}
+
+nav ul {
+  text-align: center;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.2) 75%, rgba(255, 255, 255, 0) 100%);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+nav ul li {
+  display: inline-block;
+}
+
+nav ul li a {
+  padding: 18px;
+  font-family:Arial;
+	
+  text-transform:uppercase;
+  color: rgba(0, 35, 122, 0.5);
+  font-size: 18px;
+  text-decoration: none;
+  display: block;
+}
+
+nav ul li a:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(0, 35, 122, 0.7);
+}
+
+#start{
+display: block;
+}
+h2{
+color: rgba(0, 35, 122, 0.7);
+  font-size: 50px;
+  font-family:Arial;
+}
+h1{
+color: rgba(0, 35, 122, 0.7);
+  font-size: 30px;
+  font-family:Arial;
+  padding-bottom:2%;
+}
+
+
+table{
+ animation: fadein 1s;
+    -moz-animation: fadein 1s; /* Firefox */
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -o-animation: fadein 1s; /* Opera */}
+
+ body {
+
+   
+    animation: fadein 1s;
+    -moz-animation: fadein 1s; /* Firefox */
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -o-animation: fadein 1s; /* Opera */
+}
+@keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-moz-keyframes fadein { /* Firefox */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-webkit-keyframes fadein { /* Safari and Chrome */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+@-o-keyframes fadein { /* Opera */
+    from {
+        opacity:0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+</style>
+<!--===============================================================================================-->
+
+
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
+
+
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='https://unpkg.com/aos@2.3.1/dist/aos.css') }}" />
+</head>
+<body background="{{ url_for('static', filename='images/pop.jpg') }}">
+<nav>
+  <ul>
+  <li>
+     <a href="#" onclick="sderot()">שדרות</a>
+    </li>
+    <li>
+     <a href="#" onclick="kiriyat()">קריית גת</a>
+    </li>
+    <li>
+      <a href="#"  onclick="ashkelon()">אשקלון</a>
+    </li>
+    <li>
+      <a href="#" onclick="beersheeva()">באר שבע</a>
+    </li>
+    <li>
+      <a href="#"  onclick="malachi()">קריית מלאכי</a>
+    </li>
+	<li>
+      <a href="#"  onclick="netivot()">נתיבות</a>
+    </li>
+    <li>
+      <a href="#" onclick="ofakim()">אופקים</a>
+    </li>
+  </ul>
+</nav>
+
+<br>
+<br>
+<br>
+<div  id="start" align="center">
+<br>
+<br>
+<br>
+<h2 >נתוני עומס בזמן אמת</h2>
+</div>
+
+<div id="kiriyat">
+<h1 align="center">קריית גת</h1>
+{{table_kiriyat | safe}}
+</div>
+
+<div id="sderot">
+<h1 align="center">שדרות</h1>
+{{table_sderot | safe}}
+</div>
+
+<div id="ashkelon">
+<h1 align="center">אשקלון</h1>
+{{table_ashkelon| safe}}
+</div>
+
+<div id="beersheeva">
+<h1 align="center">באר שבע</h1>
+{{table_beersheeva| safe}}
+</div>
+
+<div id="malachi">
+<h1 align="center">קריית מלאכי</h1>
+{{table_malachi| safe}}
+</div>
+
+<div id="netivot">
+<h1 align="center">נתיבות</h1>
+{{table_netivot| safe}}
+</div>
+
+<div id="ofakim">
+<h1 align="center">אופקים</h1>
+{{table_ofakim| safe}}
+</div>
+
+
+</body>
+<script>
+function sderot() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'block';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	kiriyat.style.display = 'none';
+	ashkelon.style.display = 'none';
+	beersheeva.style.display = 'none';
+	malachi.style.display = 'none';
+	netivot.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+
+function kiriyat() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	var start = document.getElementById('start');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	start.style.display = 'none';
+  	kiriyat.style.display = 'block';
+	ashkelon.style.display = 'none';
+	beersheeva.style.display = 'none';
+	malachi.style.display = 'none';
+	netivot.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+	
+function ashkelon() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	kiriyat.style.display = 'none';
+	ashkelon.style.display = 'block';
+	beersheeva.style.display = 'none';
+	malachi.style.display = 'none';
+	netivot.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+	
+function beersheeva() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	beersheeva.style.display = 'block';
+	ashkelon.style.display = 'none';
+	kiriyat.style.display = 'none';
+	malachi.style.display = 'none';
+	netivot.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+	
+function malachi() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	kiriyat.style.display = 'none';
+	malachi.style.display = 'block';
+	ashkelon.style.display = 'none';
+	beersheeva.style.display = 'none';
+	netivot.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+	
+function netivot() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	netivot.style.display = 'block';
+	ashkelon.style.display = 'none';
+	kiriyat.style.display = 'none';
+	beersheeva.style.display = 'none';
+	malachi.style.display = 'none';
+	ofakim.style.display = 'none';
+  	}
+	
+function ofakim() {
+  	var kiriyat = document.getElementById('kiriyat');
+	var ashkelon = document.getElementById('ashkelon');
+	var beersheeva = document.getElementById('beersheeva');
+	var malachi = document.getElementById('malachi');
+	var netivot = document.getElementById('netivot');
+	var ofakim = document.getElementById('ofakim');
+	
+	var sderot = document.getElementById('sderot');
+	sderot.style.display = 'none';
+	
+	var start = document.getElementById('start');
+	start.style.display = 'none';
+	
+  	kiriyat.style.display = 'none';
+	ofakim.style.display = 'block';
+	ashkelon.style.display = 'none';
+	beersheeva.style.display = 'none';
+	malachi.style.display = 'none';
+	netivot.style.display = 'none';
+  	}
+</script>
+
+
+
+</html>
